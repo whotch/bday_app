@@ -156,7 +156,7 @@ def next_bdays(birthdays):
 
     sorted_bdays = sort_bdays(birthdays)
 
-    # Iterate at most twice to allow wraparound
+    # Find birthdays in next 30 days
     for name, date in sorted_bdays:
         month, day, *_ = map(int, date.split("-"))  # Ignore year
         bday_this_year = datetime(today.year, month, day)
@@ -164,6 +164,8 @@ def next_bdays(birthdays):
         # Check if the birthday falls within the next 30 days
         if today <= bday_this_year <= next_30_days:
             next_bdays.append((name, f"{month:02d}-{day:02d}"))
+        elif bday_this_year > next_30_days:
+            break
 
     # Display results
     if next_bdays:
