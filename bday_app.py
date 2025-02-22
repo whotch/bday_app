@@ -4,7 +4,7 @@
 ## bday_app.py
 #################
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 import os
 
@@ -143,37 +143,35 @@ def check_todays_bdays(birthdays):
         print("\nNo birthdays today.")
 
 # List upcoming birthdays
-def next_bdays(birthdays, count=3):
+def next_bdays(birthdays):
     if not birthdays:
         print("\nNo birthdays stored.")
         return
 
-    today = datetime.now().strftime("%m-%d")
-    today_month, today_day = map(int, today.split("-"))
+    today = datetime.today()
+    next_30_days = today + timedelta(days=30)
+    # today_month, today_day = map(int, today.split("-"))
 
     next_bdays = []
-    found = False
 
     sorted_bdays = sort_bdays(birthdays)
 
     # Iterate at most twice to allow wraparound
-    for _ in range(2):  # Ensures loop twice at most
-        for name, date in sorted_bdays:
-            month, day, *_ = map(int, date.split("-"))  # Ignore year
-            
-            if len(next_bdays) < count:
-                if (month > today_month) or (month == today_month and day > today_day) or next_bdays:
-                    next_bdays.append((name, f"{month:02d}-{day:02d}"))
-            else:
-                break
+    for name, date in sorted_bdays:
+        month, day, *_ = map(int, date.split("-"))  # Ignore year
+        bday_this_year = datetime(today.year, month, day)
         
-        if len(next_bdays) >= count:
-            break  # Stop if we've found enough birthdays
+        # Check if the birthday falls within the next 30 days
+        if today <= bday_this_year <= next_30_days:
+            next_bdays.append((name, f"{month:02d}-{day:02d}"))
 
     # Display results
-    print("\n🎉 Next Upcoming Birthdays 🎉")
-    for name, date in next_bdays:
-        print(f"- {name.title()}: {date}")
+    if next_bdays:
+        print("\n🎉 Next Upcoming Birthdays (Next 30 Days) 🎉")
+        for name, date in next_bdays:
+            print(f"- {name.title()}: {date}")
+    else:
+        print("\nNo birthdays in the next 30 days.")
 
 
 # List all stored birthdays
@@ -185,7 +183,7 @@ def list_bdays(birthdays):
     print("\nStored Birthdays:")
 
     sorted_bdays = sort_bdays(birthdays)
-    
+
     for name, date in sorted_bdays:
         print(f"- {name.title()}: {date}")
 
@@ -229,7 +227,7 @@ def main():
         print("3. REMOVE a Birthday")
         print("4. CHECK Today's Birthdays")
         print("5. List NEXT Birthdays")
-        print("6. LIST All Birthdays")
+        print("6. List ALL Birthdays")
         print("7. EXIT")
 
         choice = input("\nChoose an option: ").strip()
